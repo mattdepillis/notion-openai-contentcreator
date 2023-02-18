@@ -1,19 +1,13 @@
-import React, { Fragment, useState, useEffect } from 'react'
+import React, { Fragment } from 'react'
 
-import { fetchNotionData } from './api/notion/notion'
+import Cont from './Cont'
 
 const App = () => {
-  const [notionData, setNotionData] = useState(null)
-
-  useEffect(() => {
-    const setData = async () => setNotionData(await fetchNotionData())
-    setData()
-  }, [])
-  useEffect(() => console.log('notionData: ', notionData), [notionData])
   return (
     <Fragment>
-      {notionData ? <p>{notionData}</p> : <p>Nothing to see here...</p>}
-    </Fragment>
+      <p>Notion App</p>
+      <Cont />
+      </Fragment>
   )
 }
 
