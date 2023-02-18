@@ -8,10 +8,11 @@ import { findAllRootPages } from './routes/notion/notionGet'
 const app = express()
 app.use(cors())
 
-app.get('/', (req: Request, res: Response) => {
-  const allPages = findAllRootPages()
-  res.json(allPages)
-  // res.json('hello world from server!')
+app.get('/', async (req: Request, res: Response) => {
+  const allPages = await findAllRootPages()
+  const rootPages = allPages.filter(page => page.parent.type === 'workspace')
+  console.log(allPages)
+  res.json(rootPages)
 });
 
 app.listen(3001, () => {
