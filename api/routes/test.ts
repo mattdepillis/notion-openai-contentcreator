@@ -1,1 +1,0 @@
-export const logMessage: string = "Just changed the message."

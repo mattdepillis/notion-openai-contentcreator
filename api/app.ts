@@ -1,13 +1,19 @@
-import express, { Request, Response } from 'express';
-import { logMessage } from "./routes/test"
+import express, { Request, Response } from 'express'
 
-const app = express();
+const cors = require('cors')
+require('dotenv').config()
+
+import { findAllRootPages } from './routes/notion/notionGet'
+
+const app = express()
+app.use(cors())
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!');
+  const allPages = findAllRootPages()
+  res.json(allPages)
+  // res.json('hello world from server!')
 });
 
-app.listen(3000, () => {
-  console.log('Server running on port 3000');
-  console.log(`additional content: ${logMessage}`)
+app.listen(3001, () => {
+  console.log('Server running on port 3001')
 });
