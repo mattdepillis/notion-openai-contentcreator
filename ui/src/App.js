@@ -1,13 +1,14 @@
-import React, { Fragment } from 'react'
+import React from 'react'
+import { ChakraProvider } from '@chakra-ui/react'
 
 import Cont from './Cont'
+import { extendedGlobalTheme } from './styles/chakraGlobal'
 
 const App = () => {
   return (
-    <Fragment>
-      <p>Notion App</p>
+    <ChakraProvider theme={extendedGlobalTheme}>
       <Cont />
-      </Fragment>
+    </ChakraProvider>
   )
 }
 
