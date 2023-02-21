@@ -1,16 +1,8 @@
 import { Client } from '@notionhq/client'
-import { PartialPageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
+
+import { PageObjectWithParent } from '../../types/notion/pageTypes'
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY })
-
-interface PageObjectWithParent extends PartialPageObjectResponse {
-  parent: {
-    type: 'database_id' | 'page_id' | 'workspace'
-    database_id?: 'string'
-    page_id?: 'string'
-    workspace?: 'boolean'
-  }
-}
 
 /*
   a method designed to find all the root pages in a user's workspace.
@@ -26,7 +18,8 @@ export const findAllRootPages = async () => {
     },
     // adjust size depending on how many root pages the workspace has.
     // include a buffer in case root pages aren't all returned first in results.
-    // page_size: 20
+    page_size: 20
   })
-  return response.results as PageObjectWithParent[]
+  const allPages = response.results as PageObjectWithParent[]
+  return allPages.filter(page => page.parent.type === 'workspace')
 }
