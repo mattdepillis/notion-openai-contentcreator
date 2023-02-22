@@ -1,8 +1,5 @@
-import { Client } from '@notionhq/client'
-
-import { PageObjectWithParent } from '../../types/notion/pageTypes'
-
-const notion = new Client({ auth: process.env.NOTION_API_KEY })
+import { notion } from "../../utils/notionClient"
+import { PageObjectWithParent } from '../../types/notion/responseTypes'
 
 /*
   a method designed to find all the root pages in a user's workspace.
@@ -22,4 +19,14 @@ export const findAllRootPages = async () => {
   })
   const allPages = response.results as PageObjectWithParent[]
   return allPages.filter(page => page.parent.type === 'workspace')
+}
+
+
+export const findPageChildren = async(id: string) => {
+  const response = await notion.blocks.children.list({
+    block_id: id,
+    // page_size: 100
+  })
+  // console.log(response.results)
+  return response.results
 }
