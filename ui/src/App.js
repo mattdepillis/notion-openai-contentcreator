@@ -1,13 +1,13 @@
 import React from 'react'
 import { ChakraProvider } from '@chakra-ui/react'
 
-import Cont from './Cont'
+import AppContainer from './containers/AppContainer'
 import { extendedGlobalTheme } from './styles/chakraGlobal'
 
 const App = () => {
   return (
     <ChakraProvider theme={extendedGlobalTheme}>
-      <Cont />
+      <AppContainer />
     </ChakraProvider>
   )
 }
