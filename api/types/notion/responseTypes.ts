@@ -8,11 +8,3 @@ export interface PageObjectWithParent extends PartialPageObjectResponse {
     workspace?: 'boolean'
   }
 }
-
-export interface PageObjectWithProperties extends PageObjectWithParent {
-  properties: {
-    title: {
-      title: string
-    }
-  }
-}
