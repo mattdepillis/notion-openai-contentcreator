@@ -1,8 +1,10 @@
-import { notion } from "../../utils/notionClient"
 import { TreeNode } from '../../types/notion/treeNodeTypes'
 import { IconProperty, TitleProperty } from "../../types/notion/pagePropertyTypes"
+
+import * as notionBlocks from "../../handlers/notion/notionBlocks"
 import * as notionPages from "../../handlers/notion/notionPages"
 import * as notionSearch from "../../handlers/notion/notionSearch"
+
 
 // async function getNode(id: string): Promise<TreeNode> {
 async function getNode(id: string, rootNode: TreeNode | null): Promise<any> {
@@ -51,7 +53,34 @@ async function getNode(id: string, rootNode: TreeNode | null): Promise<any> {
   }
 }
 
-// TODO: play with the TreeNode object here
+// recursive method to fetch all the node's children and pass each child to a separate function for stripping out valid props for tree construction 
+const getNodeChildren = async (node: TreeNode) : Promise<TreeNode> => {
+
+  let children: any
+
+
+  // handle case where the children are the root pages of the workspace
+  // for now -- just pages should be located at root
+  // TODO: think about whether or not dbs should be allowed at root as well
+  if (node.id === "workspace") {
+    children = await notionSearch.findAllRootPages()
+  } else children = await notionBlocks.getTreeNodeChildBlocks(node.id)
+
+  // if no children, just return the node as is
+  if (children.length() === 0) return node
+
+  /*
+    * now that we have all children, we want to map each child element to fit our desired format
+    * for TreeNode, which is PageNode | DatabaseNode.
+    * we'll do this by passing each node to the prep function.
+    * then, to test, we'll send back the root children and log out to output.
+    * if this succeeds, we'll test the construction of the entire tree.
+  */
+
+  return node
+}
+
+// overarching method -- preps root node and then passes to recursive methods to get all child dbs + pages in the tree
 export const buildWorkspaceTree = async () : Promise<TreeNode> => {
   const rootPages = await notionSearch.findAllRootPages()
 
