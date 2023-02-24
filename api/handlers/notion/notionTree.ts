@@ -53,21 +53,28 @@ async function getNode(id: string, rootNode: TreeNode | null): Promise<any> {
   }
 }
 
+
 // recursive method to fetch all the node's children and pass each child to a separate function for stripping out valid props for tree construction 
-const getNodeChildren = async (node: TreeNode) : Promise<TreeNode> => {
+const getNodeChildren = async (node: TreeNode) : Promise<TreeNode[]> => {
 
-  let children: any
-
+  let children: any[]
 
   // handle case where the children are the root pages of the workspace
   // for now -- just pages should be located at root
   // TODO: think about whether or not dbs should be allowed at root as well
   if (node.id === "workspace") {
     children = await notionSearch.findAllRootPages()
-  } else children = await notionBlocks.getTreeNodeChildBlocks(node.id)
+  } else {
+    const validChildren = await notionBlocks.getTreeNodeChildBlocks(node.id)
+    children = await Promise.all(validChildren.map(
+      child => notionBlocks.getChildBlock(child.type, child.id)
+    ))
+  }
+
+  console.log('c', children)
 
   // if no children, just return the node as is
-  if (children.length() === 0) return node
+  if (children.length === 0) return children
 
   /*
     * now that we have all children, we want to map each child element to fit our desired format
@@ -77,7 +84,7 @@ const getNodeChildren = async (node: TreeNode) : Promise<TreeNode> => {
     * if this succeeds, we'll test the construction of the entire tree.
   */
 
-  return node
+  return children
 }
 
 // overarching method -- preps root node and then passes to recursive methods to get all child dbs + pages in the tree
@@ -98,9 +105,12 @@ export const buildWorkspaceTree = async () : Promise<TreeNode> => {
         * treat page_id and database_id differently
         * 
   */
-  rootNode.children = await Promise.all(rootPages.map(root => getNode(root.id, rootNode)))
-    .then(children => children.map(child => child[0]))
-  console.log(rootNode)
+  // rootNode.children = await Promise.all(rootPages.map(root => getNode(root.id, rootNode)))
+  //   .then(children => children.map(child => child[0]))
 
+  rootNode.children = await getNodeChildren(rootNode)
+  
+  // if (rootNode.children) console.log('h', await getNodeChildren(rootNode.children[0]))
+  
   return rootNode
 }
