@@ -16,7 +16,7 @@ export const getTreeNodeChildBlocks = async (blockId: string) => {
   const childBlocks = await getChildBlocks(blockId)
     .then(allBlocks => allBlocks.results as BlockObjectResponse[])
     .then(blockObjs => blockObjs.filter(
-      block => block.type === "child_page" || block.type === "child_database"
+      block => block.type === "child_page" || (block.type === "child_database" && block.child_database.title.length > 0)
     ))
   return childBlocks
 }
@@ -25,3 +25,10 @@ export const getChildBlock = async (blockType: string, blockId: string) =>
   blockType === "child_page"
     ? await retrievePage(blockId)
     : await retrieveDatabase(blockId)
+
+
+export const getBlock = async (blockId: string) => {
+  return await notion.blocks.retrieve({
+    block_id: blockId
+  })
+}
