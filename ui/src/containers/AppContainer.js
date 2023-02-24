@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Container, Spinner, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 
-import { fetchNotionData, fetchChildren, fetchTree } from '../api/notion/notion'
+import { fetchNotionData } from '../api/notion/notion'
 
 const AppContainer = () => {
   const [rootPages, setRootPages] = useState([])
@@ -17,7 +17,7 @@ const AppContainer = () => {
     console.log('rootPages: ', rootPages)
   }, [rootPages])
   return (
-    <Container maxW='90%' onClick={fetchTree()}>
+    <Container maxW='90%'>
       <p>Notion Workspace Root Pages</p>
       {rootPages.length > 0 ? (
         <Tabs variant='soft-rounded' colorScheme='green'>
@@ -30,7 +30,8 @@ const AppContainer = () => {
           </TabList>
           <TabPanels>
             {rootPages.map(page => (
-              <TabPanel p={4} key={page.id} onClick={fetchChildren(page.id)}>
+              // <TabPanel p={4} key={page.id} onClick={fetchChildren(page.id)}>
+              <TabPanel p={4} key={page.id}>
                 {page.icon && page.icon.emoji + ' '}{page.properties.title.title[0].plain_text}
               </TabPanel>
             ))}
