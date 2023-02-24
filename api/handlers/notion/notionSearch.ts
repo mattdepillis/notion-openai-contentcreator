@@ -1,12 +1,13 @@
 import { notion } from "../../utils/notionClient"
 import { PageObjectWithParent } from '../../types/notion/responseTypes'
+import { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints"
 
 /*
   a method designed to find all the root pages in a user's workspace.
   given the notion search api's limitations for filter params that can be passed as of Version: 2022-06-08,
   we must create a separate filter to return just the root pages of the workspace from the results.
 */
-export const findAllRootPages = async () => {
+export const findAllRootPages = async (type?: string) => {
   const response = await notion.search({
     query: '',
     filter: {
@@ -17,8 +18,11 @@ export const findAllRootPages = async () => {
     // include a buffer in case root pages aren't all returned first in results.
     page_size: 20
   })
-  const allPages = response.results as PageObjectWithParent[]
-  return allPages.filter(page => page.parent.type === 'workspace')
+  const pages = type && type === "PageObjectResponse"
+    ? (response.results as PageObjectResponse[]).filter(page => page.parent.type === 'workspace')
+    : (response.results as PageObjectWithParent[]).filter(page => page.parent.type === 'workspace')
+
+  return pages
 }
 
 
