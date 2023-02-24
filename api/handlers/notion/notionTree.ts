@@ -4,6 +4,7 @@ import { IconProperty, TitleProperty } from "../../types/notion/pagePropertyType
 import * as notionBlocks from "../../handlers/notion/notionBlocks"
 import * as notionPages from "../../handlers/notion/notionPages"
 import * as notionSearch from "../../handlers/notion/notionSearch"
+import { DatabaseObjectResponse, PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 
 
 // async function getNode(id: string): Promise<TreeNode> {
@@ -53,6 +54,19 @@ async function getNode(id: string, rootNode: TreeNode | null): Promise<any> {
   }
 }
 
+const formatChildTreeNode = (node: DatabaseObjectResponse | PageObjectResponse): TreeNode => {
+  let newNode = {
+    id: node.id, type: node.object, title: "", children: []
+  }
+  const emoji = node.icon as IconProperty
+  const title = node.object === "page"
+    ? (node.properties.title as TitleProperty).title[0].plain_text
+    : node.title[0].plain_text
+
+  newNode.title = `${emoji.emoji} ${title}`
+
+  return newNode
+}
 
 // recursive method to fetch all the node's children and pass each child to a separate function for stripping out valid props for tree construction 
 const getNodeChildren = async (node: TreeNode) : Promise<TreeNode[]> => {
@@ -71,46 +85,24 @@ const getNodeChildren = async (node: TreeNode) : Promise<TreeNode[]> => {
     ))
   }
 
-  console.log('c', children)
-
   // if no children, just return the node as is
-  if (children.length === 0) return children
-
-  /*
-    * now that we have all children, we want to map each child element to fit our desired format
-    * for TreeNode, which is PageNode | DatabaseNode.
-    * we'll do this by passing each node to the prep function.
-    * then, to test, we'll send back the root children and log out to output.
-    * if this succeeds, we'll test the construction of the entire tree.
-  */
+  if (children.length > 0) {
+    children = children.map(child => formatChildTreeNode(child))
+    // TODO: children.forEach(child => await Promise.all(child => getNodeChildren(child)))
+  }
 
   return children
 }
 
 // overarching method -- preps root node and then passes to recursive methods to get all child dbs + pages in the tree
 export const buildWorkspaceTree = async () : Promise<TreeNode> => {
-  const rootPages = await notionSearch.findAllRootPages()
-
   const rootNode: TreeNode = {
     id: "workspace", type: "database", title: "Workspace", children: []
   }
 
-  /* 
-    * should be more like getNodeChildren(root)
-      * top root: TreeNode = { id: "workspace", type: "database", title: "Workspace", children: [] }
-      * if (root.id === "workspace") blocks = notionSearch.findAllRootPages()
-      * if a db or page, different logic
-      * FETCH ALL CHILDREN, then filter for just child DBs and pages -- might want to just fetch all child blocks
-      * then, for each child -> getNode(id, type, parent)
-        * treat page_id and database_id differently
-        * 
-  */
-  // rootNode.children = await Promise.all(rootPages.map(root => getNode(root.id, rootNode)))
-  //   .then(children => children.map(child => child[0]))
-
   rootNode.children = await getNodeChildren(rootNode)
-  
-  // if (rootNode.children) console.log('h', await getNodeChildren(rootNode.children[0]))
-  
+
+  console.log('rn', rootNode)
+    
   return rootNode
 }
