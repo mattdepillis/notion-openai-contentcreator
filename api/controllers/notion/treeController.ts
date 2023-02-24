@@ -4,5 +4,5 @@ import * as notionTree from "../../handlers/notion/notionTree"
 
 export const getTree = async (req: Request, res: Response) => {
   const tree = await notionTree.buildWorkspaceTree()
-  return tree
+  res.json(tree)
 }
