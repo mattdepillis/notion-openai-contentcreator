@@ -23,6 +23,21 @@ const formatChildTreeNode = (node: NodeChild): TreeNode => {
 }
 
 type NodeChild = DatabaseObjectResponse | PageObjectResponse
+type Child = ChildPageBlockObjectResponse | ChildDatabaseBlockObjectResponse
+
+const recurseToFindChildrenInColumn = async (blockId: string, validChildren: Child[]) => {
+  const children = (await notionBlocks.getChildBlocks(blockId)).results as BlockObjectResponse[]
+  console.log('children', children)
+  for (let child of children) {
+    if (child.type === "column" || child.type === "column_list") {
+      await recurseToFindChildrenInColumn(child.id, validChildren)
+    } else if (child.type === "child_page" || child.type === "child_database") {
+      validChildren.push(child as Child)
+    }
+  }
+  return validChildren
+}
+
 
 // recursive method to fetch all the node's children and pass each child to a separate function for stripping out valid props for tree construction 
 const getNodeChildren = async (node: TreeNode) : Promise<TreeNode[]> => {
