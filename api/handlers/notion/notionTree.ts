@@ -3,7 +3,7 @@ import { IconProperty, TitleProperty } from "../../types/notion/pagePropertyType
 
 import * as notionBlocks from "../../handlers/notion/notionBlocks"
 import * as notionSearch from "../../handlers/notion/notionSearch"
-import { DatabaseObjectResponse, PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
+import { BlockObjectResponse, ChildDatabaseBlockObjectResponse, ChildPageBlockObjectResponse, ColumnListBlockObjectResponse, DatabaseObjectResponse, PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 
 const formatChildTreeNode = (node: NodeChild): TreeNode => {
   let newNode = {
@@ -44,9 +44,6 @@ const getNodeChildren = async (node: TreeNode) : Promise<TreeNode[]> => {
 
   let children: NodeChild[]
 
-  // handle case where the children are the root pages of the workspace
-  // for now -- just pages should be located at root
-  // TODO: think about whether or not dbs should be allowed at root as well
   if (node.id === "workspace") {
     children = await notionSearch.findAllRootPages("PageObjectResponse") as NodeChild[]
   } else {
@@ -69,15 +66,10 @@ const getNodeChildren = async (node: TreeNode) : Promise<TreeNode[]> => {
   // if no children, just return the node as is
   if (children.length === 0) return [] as TreeNode[]
 
-  const nodeChildren = children.map(child => formatChildTreeNode(child)) as TreeNode[]
+  const nodeChildren = children.map(child => formatChildTreeNode(child))
 
-  for (let child of nodeChildren) {
-    // TODO: test this and confirm it's the correct syntax for fetching all
-    console.log('fetching children for child', child.title, child.id)
-    child.children = await Promise.all(await getNodeChildren(child))
-  }
-
-  // nodeChildren.map(async nodeChild => nodeChild.children = await getNodeChildren(nodeChild))
+  // TODO: make this work for pages inside DBs (for example, Essays within Personal Site page)
+  for (let child of nodeChildren) child.children = await Promise.all(await getNodeChildren(child))
 
   return nodeChildren
 }
@@ -92,6 +84,5 @@ export const buildWorkspaceTree = async () : Promise<TreeNode> => {
   }
 
   rootNode.children = await getNodeChildren(rootNode)
-  // console.log('rn', rootNode)
   return rootNode
 }
