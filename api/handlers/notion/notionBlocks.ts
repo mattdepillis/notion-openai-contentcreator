@@ -16,7 +16,10 @@ export const getTreeNodeChildBlocks = async (blockId: string) => {
   const childBlocks = await getChildBlocks(blockId)
     .then(allBlocks => allBlocks.results as BlockObjectResponse[])
     .then(blockObjs => blockObjs.filter(
-      block => block.type === "child_page" || (block.type === "child_database" && block.child_database.title.length > 0)
+      block =>
+        block.type === "child_page" ||
+        (block.type === "child_database" && block.child_database.title.length > 0) ||
+        block.type === "column_list"
     ))
   return childBlocks
 }
