@@ -51,7 +51,19 @@ const getNodeChildren = async (node: TreeNode) : Promise<TreeNode[]> => {
     children = await notionSearch.findAllRootPages("PageObjectResponse") as NodeChild[]
   } else {
     const validChildren = await notionBlocks.getTreeNodeChildBlocks(node.id)
-    children = await Promise.all(validChildren.map(async child => await notionBlocks.getChildBlock(child.type, child.id)))
+
+    const childrenAsBlocks = await Promise.all(validChildren.map(async child => {
+      if (child.type === "column_list") {
+        const nestedChildren = await recurseToFindChildrenInColumn(child.id, [])
+
+        return await Promise.all(nestedChildren.map(async nestedChild =>
+          await notionBlocks.getChildBlock(nestedChild.type, nestedChild.id)
+        ))
+      }
+      else return await notionBlocks.getChildBlock(child.type, child.id)
+    }))
+
+    children = childrenAsBlocks.flat()
   }
 
   // if no children, just return the node as is
