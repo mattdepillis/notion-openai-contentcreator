@@ -1,6 +1,6 @@
-import { notion } from "../../utils/notionClient"
-import { PageObjectWithParent } from '../../types/notion/responseTypes'
-import { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints"
+import { notion } from '../../utils/notionClient'
+import { PageObjectWithParent } from '../../types/notion/notionApiResponses'
+import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 
 /*
   a method designed to find all the root pages in a user's workspace.
@@ -31,6 +31,5 @@ export const findPageChildren = async(id: string) => {
     block_id: id,
     // page_size: 100
   })
-  // console.log(response.results)
   return response.results
 }
