@@ -13,12 +13,8 @@ const formatChildTreeNode = (node: NodeChild): TreeNode => {
   const icon = (node.icon as IconProperty)
   const emoji = icon && icon.emoji || ''
 
-  const title = node.object === "page" ?
-    (node.properties.title || node.properties["Title"]) ?
-      (node.properties.title) ?
-        (node.properties.title as TitleProperty).title[0].plain_text
-        : (node.properties["Title"] as TitleProperty).title[0].plain_text
-      : ""
+  const title = node.object === "page"
+    ? (node.properties.title as TitleProperty).title[0].plain_text
     : node.title[0].plain_text
 
   newNode.title = `${emoji} ${title}`
@@ -46,6 +42,27 @@ const recurseToFindChildrenInColumn = async (blockId: string, validChildren: Chi
 // recursive method to fetch all the node's children and pass each child to a separate function for stripping out valid props for tree construction 
 const getNodeChildren = async (node: TreeNode) : Promise<TreeNode[]> => {
 
+/**
+ * 
+ */
+const getChildAsFullBlock = async (child: BlockObjectResponse) : Promise<ChildrenAsBlocks> => {
+
+  if (child.type === "column_list") {
+    const nestedChildren = await recurseToFindChildren(child.id, [])
+
+    return await Promise.all(nestedChildren.map(
+      async nestedChild => await notionBlocks.getChildBlock(nestedChild.type, nestedChild.id)
+    ))
+
+  } else if (child.type === "child_database") {
+    return await notionDatabases.retrieveDatabase(child.id)
+  }
+  else return await notionBlocks.getChildBlock(child.type, child.id)
+}
+
+const getDatabaseEntries = async(databaseId: string) => {
+  const dbContents = (await notionDatabases.queryDatabase(databaseId)).results
+    .filter(item => item.object === "page") as PageObjectResponse[]
   let children: NodeChild[]
 
   if (node.id === "workspace") {
