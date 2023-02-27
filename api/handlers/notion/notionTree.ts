@@ -13,8 +13,12 @@ const formatChildTreeNode = (node: NodeChild): TreeNode => {
   const icon = (node.icon as IconProperty)
   const emoji = icon && icon.emoji || ''
 
-  const title = node.object === "page"
-    ? (node.properties.title as TitleProperty).title[0].plain_text
+  const title = node.object === "page" ?
+    (node.properties.title || node.properties["Title"]) ?
+      (node.properties.title) ?
+        (node.properties.title as TitleProperty).title[0].plain_text
+        : (node.properties["Title"] as TitleProperty).title[0].plain_text
+      : ""
     : node.title[0].plain_text
 
   newNode.title = `${emoji} ${title}`
