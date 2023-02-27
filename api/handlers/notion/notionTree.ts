@@ -42,27 +42,6 @@ const recurseToFindChildrenInColumn = async (blockId: string, validChildren: Chi
 // recursive method to fetch all the node's children and pass each child to a separate function for stripping out valid props for tree construction 
 const getNodeChildren = async (node: TreeNode) : Promise<TreeNode[]> => {
 
-/**
- * 
- */
-const getChildAsFullBlock = async (child: BlockObjectResponse) : Promise<ChildrenAsBlocks> => {
-
-  if (child.type === "column_list") {
-    const nestedChildren = await recurseToFindChildren(child.id, [])
-
-    return await Promise.all(nestedChildren.map(
-      async nestedChild => await notionBlocks.getChildBlock(nestedChild.type, nestedChild.id)
-    ))
-
-  } else if (child.type === "child_database") {
-    return await notionDatabases.retrieveDatabase(child.id)
-  }
-  else return await notionBlocks.getChildBlock(child.type, child.id)
-}
-
-const getDatabaseEntries = async(databaseId: string) => {
-  const dbContents = (await notionDatabases.queryDatabase(databaseId)).results
-    .filter(item => item.object === "page") as PageObjectResponse[]
   let children: NodeChild[]
 
   if (node.id === "workspace") {
@@ -94,6 +73,21 @@ const getDatabaseEntries = async(databaseId: string) => {
 
   return nodeChildren
 }
+
+  let children: NodeChild[]
+
+  if (node.id === "workspace") {
+    children = await notionSearch.findAllRootPages("PageObjectResponse") as NodeChild[]
+  } else {
+    const validChildren = node.type === "database"
+      ? await getDatabaseEntries(node.id)
+      : await Promise.all(
+        (await notionBlocks.getTreeNodeChildBlocks(node.id))
+          .map(async child => await getChildAsFullBlock(child))
+      )
+
+    children = validChildren.flat()
+  }
 
 // overarching method -- preps root node and then passes to recursive methods to get all child dbs + pages in the tree
 // TODO: want to achieve this piecewise for performance reasons
