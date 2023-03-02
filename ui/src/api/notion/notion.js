@@ -10,4 +10,11 @@ export const fetchChildren = async (id) =>
 export const fetchTree = async () =>
   await fetch(process.env.REACT_APP_API_URL + "/notion/tree", { method: 'GET' })
     .then(d => d.json())
-    // .then(d => { console.log("tree", d); return d; })
+
+// TODO: refine this method for data fetching of tree components
+export const fetchTreeNodeChildren = async (node) =>
+  await fetch(process.env.REACT_APP_API_URL + `/notion/tree/children`, {
+    method: 'GET',
+    body: node
+  })
+    .then(d => d.json())
