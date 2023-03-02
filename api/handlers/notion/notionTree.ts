@@ -3,7 +3,7 @@ import * as notionDatabases from '../../handlers/notion/notionDatabases'
 import * as notionPages from '../../handlers/notion/notionPages'
 import * as notionSearch from '../../handlers/notion/notionSearch'
 
-import { Child, ChildrenAsBlocks, NodeChild } from '../../types/notion/notionApiResponses'
+import { Child, ChildrenAsBlocks, NodeChild, Node } from '../../types/notion/notionApiResponses'
 import { IconProperty, TitleProperty } from '../../types/notion/pageProperties'
 import { TreeNode } from '../../types/notion/TreeNode'
 import { BlockObjectResponse, PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
@@ -11,11 +11,7 @@ import { BlockObjectResponse, PageObjectResponse } from '@notionhq/client/build/
 /**
  * 
  */
-const formatChildTreeNode = (node: NodeChild): TreeNode => {
-  let newNode = {
-    id: node.id, type: node.object, title: "", children: []
-  }
-
+const formatNodeTitle = (node: Node): string => {
   const icon = (node.icon as IconProperty)
   const emoji = icon && (icon.emoji + " ") || ''
 
@@ -27,10 +23,7 @@ const formatChildTreeNode = (node: NodeChild): TreeNode => {
       : ""
     : node.title[0].plain_text
 
-  newNode.title = `${emoji}${title}`
-
-
-  return newNode
+  return `${emoji}${title}`
 }
 
 /**
@@ -67,9 +60,12 @@ const getChildAsFullBlock = async (child: BlockObjectResponse) : Promise<Childre
   else return await notionBlocks.getChildBlock(child.type, child.id)
 }
 
-const getDatabaseEntries = async(databaseId: string) => {
+const getDatabaseEntries = async(title: string, databaseId: string) => {
+  console.log(`fetching entries for database with title: ${title}`)
   const dbContents = (await notionDatabases.queryDatabase(databaseId)).results
     .filter(item => item.object === "page") as PageObjectResponse[]
+
+  console.log(`dbContents for ${title}: `, dbContents)
 
   return await Promise.all(dbContents.map(
     async dbContents => await notionPages.retrievePage(dbContents.id)
@@ -79,15 +75,43 @@ const getDatabaseEntries = async(databaseId: string) => {
 /**
  * 
  */
-const getNodeChildren = async (node: TreeNode) : Promise<TreeNode[]> => {
+// const getNodeChildren = async (node: TreeNode) : Promise<TreeNode[]> => {
 
+//   let children: NodeChild[]
+
+//   if (node.id === "workspace") {
+//     children = await notionSearch.findAllRootPages() as NodeChild[]
+//   } else {
+//     const validChildren = node.type === "database"
+//       ? await getDatabaseEntries(node.title, node.id)
+//       : await Promise.all(
+//         (await notionBlocks.getTreeNodeChildBlocks(node.id))
+//           .map(async child => await getChildAsFullBlock(child))
+//       )
+
+//     children = validChildren.flat()
+//   }
+
+//   // if no children, just return the node as is
+//   if (children.length === 0) return [] as TreeNode[]
+
+//   const nodeChildren = children.map(child => formatChildTreeNode(child))
+
+//   for (let child of nodeChildren) {
+//     child.children = await Promise.all(await getNodeChildren(child))
+//   }
+
+//   return nodeChildren
+// }
+
+const getNodeChildren = async (node: TreeNode) : Promise<any[]> => {
   let children: NodeChild[]
 
   if (node.id === "workspace") {
-    children = await notionSearch.findAllRootPages("PageObjectResponse") as NodeChild[]
+    children = await notionSearch.findAllRootPages() as NodeChild[]
   } else {
     const validChildren = node.type === "database"
-      ? await getDatabaseEntries(node.id)
+      ? await getDatabaseEntries(node.title, node.id)
       : await Promise.all(
         (await notionBlocks.getTreeNodeChildBlocks(node.id))
           .map(async child => await getChildAsFullBlock(child))
@@ -96,29 +120,52 @@ const getNodeChildren = async (node: TreeNode) : Promise<TreeNode[]> => {
     children = validChildren.flat()
   }
 
-  // if no children, just return the node as is
-  if (children.length === 0) return [] as TreeNode[]
-
-  const nodeChildren = children.map(child => formatChildTreeNode(child))
-
-  for (let child of nodeChildren) {
-    child.children = await Promise.all(await getNodeChildren(child))
-  }
-
-  return nodeChildren
+  return children.map(child => ({ id: child.id, type: child.object }))
 }
 
 /**
  * 
  */
 export const buildWorkspaceTree = async () : Promise<TreeNode> => {
+  // TODO: pass this in as a param
+  // * fetch all children and then return to the 
   const rootNode: TreeNode = {
     id: "workspace", type: "database", title: "Workspace", children: []
   }
 
   // const c = await notionPages.retrievePage("e7ed9dfd-7355-4343-9cf4-9de50f34a09b")
+  // const c = await notionDatabases.retrieveDatabase("3f84aed0-0bc4-480a-b2c8-b7f983c2b7b5")
+  // const c = await notionBlocks.getChildBlocks("3f84aed0-0bc4-480a-b2c8-b7f983c2b7b5")
   // console.log(c)
 
-  rootNode.children = await getNodeChildren(rootNode)
+  // rootNode.children = await getNodeChildren(rootNode)
   return rootNode
+}
+
+
+export const getNodeBlock = async (node: TreeNode): Promise<Node> => {
+  const block = node.type === "page"
+    ? await notionPages.retrievePage(node.id)
+    : await notionDatabases.retrieveDatabase(node.id)
+
+  return block
+}
+
+
+export const buildTreeNode = async (id: string, type: string): Promise<TreeNode | void> => {
+  if (["page", "database"].indexOf(type) < 0) return
+
+  let node: TreeNode = {
+    id, type, title: "", children: []
+  }
+
+  if (node.id !== "workspace") {
+    const asBlock = await getNodeBlock(node)
+    node.title = formatNodeTitle(asBlock)
+  } else node.title = "Workspace"
+
+  node.children = await getNodeChildren(node)
+
+  // console.log('n', node)
+  return node
 }
