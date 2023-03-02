@@ -1,15 +1,6 @@
-interface PageNode {
+export interface TreeNode {
   id: string
-  type: "page"
+  type: string
   title: string
   children?: TreeNode[]
 }
-
-interface DatabaseNode {
-  id: string
-  type: "database"
-  title: string
-  children?: TreeNode[]
-}
-
-export type TreeNode = PageNode | DatabaseNode
