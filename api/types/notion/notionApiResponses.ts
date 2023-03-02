@@ -18,3 +18,5 @@ export interface PageObjectWithParent extends PartialPageObjectResponse {
 export type Child = ChildPageBlockObjectResponse | ChildDatabaseBlockObjectResponse
 export type ChildrenAsBlocks = DatabaseObjectResponse | PageObjectResponse | (DatabaseObjectResponse | PageObjectResponse)[]
 export type NodeChild = DatabaseObjectResponse | PageObjectResponse
+
+export type Node = DatabaseObjectResponse | PageObjectResponse
