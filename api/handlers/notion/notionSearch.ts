@@ -14,9 +14,8 @@ export const findAllRootPages = async (type?: string) => {
       property: 'object',
       value: 'page'
     },
-    // adjust size depending on how many root pages the workspace has.
-    // include a buffer in case root pages aren't all returned first in results.
-    page_size: 20
+    // * adjust the following param upward if your query isn't returning all root pages of your workspace.
+    page_size: 50
   })
   const pages = type && type === "PageObjectResponse"
     ? (response.results as PageObjectResponse[]).filter(page => page.parent.type === 'workspace')
