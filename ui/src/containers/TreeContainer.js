@@ -1,23 +1,30 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 
-import { fetchTree } from '../api/notion/notion'
+// import { fetchTree } from '../api/notion/notion'
 
-const AppContainer = () => {
-  const [rootPages, setRootPages] = useState(null)
+import NotionTree from '../components/Tree'
 
-  useEffect(() => {
-    const setData = async () => {
-      const data = await fetchTree()
-      setRootPages(data)
-    }
-    setData()
-  }, [])
-  useEffect(() => {
-    console.log('notion Tree: ', rootPages)
-  }, [rootPages])
+const TreeContainer = () => {
+
+  const root = { id: "workspace", type: "database" }
+  // const [rootPages, setRootPages] = useState({})
+  
+  // useEffect(() => {
+  //   const setData = async () => {
+  //     const data = await fetchTree()
+  //     setRootPages(data)
+  //   }
+  //   setData()
+  // }, [])
+  // useEffect(() => {
+  //   console.log('notion Tree: ', rootPages)
+  // }, [rootPages])
   return (
-    <p>Tree</p>
+    <div>
+      <p>Tree</p>
+      <NotionTree root={root} />
+    </div>
   )
 }
 
-export default AppContainer
+export default TreeContainer
