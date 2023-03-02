@@ -8,5 +8,6 @@ const NotionRouter = express.Router()
 NotionRouter.get('/roots', getController.getRoots)
 NotionRouter.get('/:id/children', getController.getPageChildren)
 NotionRouter.get('/tree', treeController.getTree)
+NotionRouter.get('/tree/:type/:id', treeController.getTreeNode)
 
 export default NotionRouter
