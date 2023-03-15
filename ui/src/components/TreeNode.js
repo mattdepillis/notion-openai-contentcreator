@@ -1,4 +1,5 @@
-import React, { Fragment, useEffect, useState } from "react"
+import React, { Fragment, useState } from "react"
+
 
 const TreeNode = ({ tree, node }) => {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -7,13 +8,11 @@ const TreeNode = ({ tree, node }) => {
     setIsExpanded(!isExpanded)
   }
 
-  useEffect(() => console.log("here", node, tree), [node, tree])
-
   // TODO: figure out a better way to render the tree for my inspection atm
   return (
     <Fragment>
       <div onClick={() => handleExpansion(isExpanded)}>
-        {node.title && (<p>{node.title}</p>)}
+        {node.title && (<span>{node.title}</span>)}
         {node.children && (
           <button>{isExpanded ? '-' : '+'}</button>
         )}
@@ -21,7 +20,9 @@ const TreeNode = ({ tree, node }) => {
       {isExpanded &&
         node.children.length > 0 &&
         node.children.map(childId => (
-          <TreeNode key={childId} tree={tree} node={tree[childId]} />
+          <div style={{'paddingLeft': '5px'}}>
+            <TreeNode key={childId} tree={tree} node={tree[childId]} />
+          </div>
         ))}
     </Fragment>
   )
