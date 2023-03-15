@@ -8,6 +8,12 @@ export interface TitleProperty {
   title: TitleObject[]
 }
 
+export interface NameProperty {
+  type: string
+  id: 'title'
+  title: any[]
+}
+
 export interface IconProperty {
   type: string
   emoji?: string
