@@ -4,24 +4,31 @@ import * as notionPages from '../../handlers/notion/notionPages'
 import * as notionSearch from '../../handlers/notion/notionSearch'
 
 import { Child, Node } from '../../types/notion/notionApiResponses'
-import { IconProperty, TitleProperty } from '../../types/notion/pageProperties'
-import { NodeChild, TreeNode } from '../../types/notion/Nodes'
+import { IconProperty, NameProperty, TitleProperty} from '../../types/notion/pageProperties'
+import { NodeChild, TreeNode } from '../../types/notion/nodes'
 import { BlockObjectResponse, PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 
 /**
  * 
  */
-const formatNodeTitle = (node: Node): string => {
+const formatNodeTitle = async (node: Node): Promise<string> => {
   const icon = (node.icon as IconProperty)
   const emoji = icon && (icon.emoji + " ") || ''
 
-  const title = node.object === "page" ?
-    (node.properties.title || node.properties["Title"]) ?
+  let title = node.object === "page" ?
+    (node.properties.title || node.properties["Title"] || node.properties["Name"]) ?
       (node.properties.title) ?
-        (node.properties.title as TitleProperty).title[0].plain_text
-        : (node.properties["Title"] as TitleProperty).title[0].plain_text
-      : ""
-    : node.title[0].plain_text
+        (node.properties.title as TitleProperty).title[0]?.plain_text
+        : (node.properties["Name"]) ?
+          (node.properties["Name"] as NameProperty).title[0]?.plain_text
+        : (node.properties["Title"] as TitleProperty).title[0]?.plain_text
+    : ""
+  : node.title[0].plain_text
+
+  if (node.object === "page" && !(/[a-zA-Z0-9]/.test(title))) {
+    console.log("retrieving child_page name from BlockObjectResponse for page id", node.id)
+    title += `${await getChildPageNameFromBlock(node.id)}`
+  }
 
   return `${emoji}${title}`
 }
@@ -74,8 +81,7 @@ const getDatabaseEntries = async(databaseId: string): Promise<NodeChild[]> => {
 /**
  * 
 */
-// TODO: figure out why certain page titles aren't properly returned (do they even have them?)
-const getNodeChildren = async (node: TreeNode) : Promise<NodeChild[]> => {
+export const getNodeChildren = async (node: TreeNode) : Promise<NodeChild[]> => {
   let children: NodeChild[]
 
   if (node.id === "workspace") {
@@ -98,11 +104,21 @@ const getNodeChildren = async (node: TreeNode) : Promise<NodeChild[]> => {
 /**
  * 
 */
-export const getNodeBlock = async (node: TreeNode): Promise<Node> => {
-  const block = node.type === "page"
+const getNodeAsPageOrDatabase = async (node: TreeNode): Promise<Node> => {
+  const block = ["page", "child_page"].indexOf(node.type) >= 0
     ? await notionPages.retrievePage(node.id)
     : await notionDatabases.retrieveDatabase(node.id)
   return block
+}
+
+/**
+ * 
+*/
+const getChildPageNameFromBlock = async (id: string): Promise<string> => {
+  const block = await notionBlocks.getBlock(id) as BlockObjectResponse
+  return block.type === "child_page"
+    ? block.child_page.title
+    : ""
 }
 
 export const buildTreeNode = async (id: string, type: string): Promise<TreeNode> => {
@@ -111,12 +127,11 @@ export const buildTreeNode = async (id: string, type: string): Promise<TreeNode>
   }
 
   if (node.id !== "workspace") {
-    const asBlock = await getNodeBlock(node)
-    node.title = formatNodeTitle(asBlock)
+    const asBlock = await getNodeAsPageOrDatabase(node)
+    node.title = await formatNodeTitle(asBlock)
   } else node.title = "Workspace"
 
   node.children = await getNodeChildren(node)
 
-  // console.log('n', node)
   return node
 }
