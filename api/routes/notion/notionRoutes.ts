@@ -9,4 +9,6 @@ NotionRouter.get('/roots', getController.getRoots)
 NotionRouter.get('/:id/children', getController.getPageChildren)
 NotionRouter.get('/tree/:type/:id', treeController.getTreeNode)
 
+NotionRouter.get('/block/:id', getController.getBlock)
+
 export default NotionRouter
