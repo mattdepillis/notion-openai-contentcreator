@@ -7,14 +7,23 @@ export const fetchChildren = async (id) =>
     .then(d => d.json())
     .then(d => { console.log("children", d); return d; })
 
-export const fetchTree = async () =>
-  await fetch(process.env.REACT_APP_API_URL + "/notion/tree", { method: 'GET' })
+
+export const fetchBlock = async (blockId) =>
+  await fetch(process.env.REACT_APP_API_URL + `/notion/block/${blockId}`, { method: 'GET' })
     .then(d => d.json())
 
-// TODO: refine this method for data fetching of tree components
-export const fetchTreeNodeChildren = async (node) =>
-  await fetch(process.env.REACT_APP_API_URL + `/notion/tree/children`, {
-    method: 'GET',
-    body: node
-  })
+// our fetchNode function for constructing the notion tree
+export const fetchNode = (node, callback) =>
+  fetch(process.env.REACT_APP_API_URL + `/notion/tree/${node.type}/${node.id}`, { method: 'GET' })
     .then(d => d.json())
+    .then(node => {
+      const cleaned = { ...node }
+      cleaned.children = node.children.map(child => child.id)
+
+      callback(prev => ({
+        ...prev,
+        [node.id]: cleaned
+      }))
+
+      node.children.forEach(child => fetchNode(child, callback))
+    })
