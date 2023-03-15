@@ -1,30 +1,10 @@
 import { useState, useEffect } from 'react'
 
-// import { fetchTreeNodeChildren } from '../api/notion/notion'
 import TreeNode from './TreeNode'
-
-const fetchNode = (node, callback) =>
-  fetch(process.env.REACT_APP_API_URL + `/notion/tree/${node.type}/${node.id}`, { method: 'GET' })
-    .then(d => d.json())
-    .then(node => {
-      const cleaned = { ...node }
-      cleaned.children = node.children.map(child => child.id)
-
-      callback(prev => ({
-        ...prev,
-        [node.id]: cleaned
-      }))
-
-      node.children.forEach(child => fetchNode(child, callback))
-    })
+import { fetchNode } from '../api/notion/notion'
 
 /**
- * * will construct an associative tree
- * * tree structure will be flat, and have children arrays containing the ID of each of the element's valid children
- * * I've already done the hard work of figuring out how to filter out valid tree node children for each element
- * * now, just need to fetch objects by ID and datatype and write them to the tree object as they come back.
- * TODO: in /api/tree -- accept by ID and fetch all valid children -- then send them back in object, kind of like [ { id: 'abc123-wree', type: 'page' }]
- * TODO: then map node.children to return
+ * < comments about associative tree here >
  */
 const NotionTree = ({ root }) => {
   // create the root node and set it as initial state
@@ -33,11 +13,14 @@ const NotionTree = ({ root }) => {
   // * might want to keep track of non-fully-loaded children to pick reconstruction back up
   
   useEffect(() => {
-    fetchNode(root, setNotionTree)
+    const currentTree = sessionStorage.getItem('tree')
+    if (currentTree === null) fetchNode(root, setNotionTree)
+    else setNotionTree(JSON.parse(currentTree))
   }, [root])
 
   useEffect(() => {
     console.log('notion Tree: ', notionTree)
+    sessionStorage.setItem('tree', JSON.stringify(notionTree))
   }, [notionTree])
 
   return (
