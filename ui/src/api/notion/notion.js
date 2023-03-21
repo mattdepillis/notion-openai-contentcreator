@@ -7,12 +7,29 @@ export const fetchChildren = async (id) =>
     .then(d => d.json())
     .then(d => { console.log("children", d); return d; })
 
-
+/**
+ * 
+ * @param {string} blockId 
+ * @returns 
+ */
 export const fetchBlock = async (blockId) =>
   await fetch(process.env.REACT_APP_API_URL + `/notion/block/${blockId}`, { method: 'GET' })
     .then(d => d.json())
 
-// our fetchNode function for constructing the notion tree
+/**
+ * 
+ * @returns 
+ */
+export const fetchUsers = async () =>
+  await fetch(process.env.REACT_APP_API_URL + `/notion/users`, { method: 'GET' })
+    .then(d => d.json())
+
+/**
+ * 
+ * @param {*} node 
+ * @param {*} callback 
+ * @returns 
+ */
 export const fetchNode = (node, callback) =>
   fetch(process.env.REACT_APP_API_URL + `/notion/tree/${node.type}/${node.id}`, { method: 'GET' })
     .then(d => d.json())
