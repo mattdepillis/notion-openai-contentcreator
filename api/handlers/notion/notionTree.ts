@@ -121,13 +121,24 @@ const getChildPageNameFromBlock = async (id: string): Promise<string> => {
     : ""
 }
 
-export const buildTreeNode = async (id: string, type: string): Promise<TreeNode> => {
+export const buildTreeNode = async (id: string, type: string): Promise<TreeNode|void> => {
   let node: TreeNode = {
     id, type, title: "", children: []
   }
+  if (node.type === "external_object_instance_page") {
+    console.log(`block ${id} is an external_object_instance_page`)
+    return node
+  }
 
   if (node.id !== "workspace") {
-    const asBlock = await getNodeAsPageOrDatabase(node)
+    let asBlock: Node
+    try {
+      asBlock = await getNodeAsPageOrDatabase(node)
+    } catch(e) {
+      console.log(`error fetching block ${id}: ${e}`)
+      return
+    }
+    
     node.title = await formatNodeTitle(asBlock)
   } else node.title = "Workspace"
 
