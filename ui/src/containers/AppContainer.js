@@ -1,43 +1,34 @@
 import React, { useState, useEffect } from 'react'
-import { Container, Spinner, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
+import { Container, Avatar, AvatarBadge } from '@chakra-ui/react'
 
-import { fetchNotionData } from '../api/notion/notion'
+import { fetchUsers } from '../api/notion/notion'
+
+import { Name, WelcomeContainer } from '../styles/AppContainerStyles'
 
 const AppContainer = () => {
-  const [rootPages, setRootPages] = useState([])
+  const [user, setUser] = useState(null)
 
   useEffect(() => {
     const setData = async () => {
-      const data = await fetchNotionData()
-      setRootPages(data)
+      const data = await fetchUsers()
+      setUser(data)
     }
     setData()
   }, [])
+
   useEffect(() => {
-    console.log('rootPages: ', rootPages)
-  }, [rootPages])
+    console.log('user', user)
+  }, [user])
   return (
     <Container maxW='90%'>
-      <p>Notion Workspace Root Pages</p>
-      {rootPages.length > 0 ? (
-        <Tabs variant='soft-rounded' colorScheme='green'>
-          <TabList>
-            {rootPages.map(page => (
-              <Tab key={page.id}>
-                {page.icon && page.icon.emoji + ' '}{page.properties.title.title[0].plain_text}
-              </Tab>
-            ))}
-          </TabList>
-          <TabPanels>
-            {rootPages.map(page => (
-              // <TabPanel p={4} key={page.id} onClick={fetchChildren(page.id)}>
-              <TabPanel p={4} key={page.id}>
-                {page.icon && page.icon.emoji + ' '}{page.properties.title.title[0].plain_text}
-              </TabPanel>
-            ))}
-          </TabPanels>
-        </Tabs>
-      ) : <Spinner color='red.500' />}
+      {user &&
+        <WelcomeContainer>
+          <Avatar src={user.avatar_url} size='2xl' border='2px solid #38A169'>
+            <AvatarBadge boxSize='1em' bg='green.500' borderColor='green.100' />
+          </Avatar>
+          <Name>Welcome, <strong>{user.name}</strong></Name>
+        </WelcomeContainer>
+      }
     </Container>
   )
 }
