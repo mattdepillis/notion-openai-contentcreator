@@ -4,24 +4,32 @@ import TreeNode from './TreeNode'
 import { fetchNode } from '../api/notion/notion'
 
 /**
- * < comments about associative tree here >
+ * 
+ * @param {*} param0 
+ * @returns 
  */
-const NotionTree = ({ root }) => {
-  // create the root node and set it as initial state
+const NotionTree = ({ root, setElementMap }) => {
+  // state variables for notion tree
   const [notionTree, setNotionTree] = useState({})
-  // TODO: variable to track whether or not a tree is fully loaded -- store in local state
-  // * might want to keep track of non-fully-loaded children to pick reconstruction back up
-  
+  // 
+  const [blockMap, setBlockMap] = useState({})
+
   useEffect(() => {
     const currentTree = sessionStorage.getItem('tree')
-    if (currentTree === null) fetchNode(root, setNotionTree)
+    if (currentTree === null) fetchNode(root, setNotionTree, {}, setBlockMap)
     else setNotionTree(JSON.parse(currentTree))
   }, [root])
 
   useEffect(() => {
-    console.log('notion Tree: ', notionTree)
+    // console.log('notion Tree: ', notionTree)
     sessionStorage.setItem('tree', JSON.stringify(notionTree))
   }, [notionTree])
+
+  useEffect(() => {
+    // console.log('notion : ', blockMap)
+    sessionStorage.setItem('elementMap', JSON.stringify(blockMap))
+    setElementMap(blockMap)
+  }, [blockMap, setElementMap])
 
   return (
     <div>
