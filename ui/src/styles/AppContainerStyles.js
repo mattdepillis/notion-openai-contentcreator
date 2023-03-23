@@ -17,6 +17,7 @@ export const WelcomeContainer = styled.div`
   // * margin, padding, border
   border: 1px solid red;
   margin-top: 10px;
+  margin-bottom: 10px;
 `
 
 export const Name = styled.p`

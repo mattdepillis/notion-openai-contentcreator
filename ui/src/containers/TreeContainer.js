@@ -4,15 +4,13 @@ import NotionTree from '../components/Tree'
 
 import { fetchBlock } from '../api/notion/notion'
 
-const TreeContainer = () => {
+const TreeContainer = ({ setElementMap }) => {
   const [block, setBlock] = useState({})
 
   const root = { id: "workspace", type: "database" }
 
   useEffect(() => {
     const getBlock = async () => {
-      // const b = await fetchBlock("5aa17d15-364b-411e-af37-068e284f91b8")
-      // const b = await fetchBlock("d9e7a543-a995-42e5-879a-0e98f25a473f")
       const b = await fetchBlock("0c22fdd9-4a6d-453b-ac86-dded128acc90")
       setBlock(b)
     }
@@ -23,7 +21,7 @@ const TreeContainer = () => {
   return (
     <div>
       <h1>Tree</h1>
-      <NotionTree root={root} />
+      <NotionTree root={root} setElementMap={setElementMap} />
     </div>
   )
 }
