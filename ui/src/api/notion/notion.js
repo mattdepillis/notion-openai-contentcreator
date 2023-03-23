@@ -30,17 +30,22 @@ export const fetchUsers = async () =>
  * @param {*} callback 
  * @returns 
  */
-export const fetchNode = (node, callback) =>
+export const fetchNode = (node, setTree, blockMap, setMap) =>
   fetch(process.env.REACT_APP_API_URL + `/notion/tree/${node.type}/${node.id}`, { method: 'GET' })
     .then(d => d.json())
     .then(node => {
       const cleaned = { ...node }
       cleaned.children = node.children.map(child => child.id)
 
-      callback(prev => ({
+      setTree(prev => ({
         ...prev,
         [node.id]: cleaned
       }))
 
-      node.children.forEach(child => fetchNode(child, callback))
+      setMap(prev => ({
+        ...prev,
+        [node.title]: node.id
+      }))
+      
+      node.children.forEach(child => fetchNode(child, setTree, blockMap, setMap))
     })
