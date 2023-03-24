@@ -16,6 +16,10 @@ const AppContainer = () => {
   const [elementMap, setElementMap] = useState({})
 
   useEffect(() => {
+    // set the elementMap with init value -- useful if in same session
+    const currentMap = sessionStorage.getItem('elementMap') || {}
+    setElementMap(currentMap)
+
     const setData = async () => {
       const data = await fetchUsers()
       setUser(data)
