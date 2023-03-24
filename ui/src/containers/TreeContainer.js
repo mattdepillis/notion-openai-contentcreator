@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import NotionTree from '../components/Tree'
+import NotionTree from '../components/NotionTree'
 
 import { fetchBlock } from '../api/notion/notion'
 
