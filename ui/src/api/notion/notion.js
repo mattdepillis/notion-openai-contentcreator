@@ -1,7 +1,20 @@
+import { setMap } from "../../utils/notionApiHelpers"
+
+
+
+/**
+ * 
+ * @returns 
+ */
 export const fetchNotionData = async () =>
   await fetch(process.env.REACT_APP_API_URL + "/notion/roots", { method: 'GET' })
     .then(d => d.json())
 
+/**
+ * 
+ * @param {*} id 
+ * @returns 
+ */
 export const fetchChildren = async (id) =>
   await fetch(process.env.REACT_APP_API_URL + `/notion/${id}/children`, { method: 'GET' })
     .then(d => d.json())
@@ -30,22 +43,25 @@ export const fetchUsers = async () =>
  * @param {*} callback 
  * @returns 
  */
-export const fetchNode = (node, setTree, blockMap, setMap) =>
+export const fetchNode = (node, setTree, setElementMap) =>
   fetch(process.env.REACT_APP_API_URL + `/notion/tree/${node.type}/${node.id}`, { method: 'GET' })
     .then(d => d.json())
     .then(node => {
       const cleaned = { ...node }
       cleaned.children = node.children.map(child => child.id)
 
-      setTree(prev => ({
-        ...prev,
-        [node.id]: cleaned
-      }))
+      setTree(prev => {
+        /*
+          NOTE: this was the only way I could successfully set both elementMap and notionTree at once.
+          Calling setElementMap() directly here had some odd state effects,
+          including preventing the passdown of previous tree state to future fetchNode() calls.
+        */
+        setMap(node, setElementMap)
 
-      setMap(prev => ({
-        ...prev,
-        [node.title]: node.id
-      }))
+        const newTree = { ...prev, [node.id]: cleaned }
+        sessionStorage.setItem('tree', JSON.stringify(newTree))
+        return newTree
+      })
       
-      node.children.forEach(child => fetchNode(child, setTree, blockMap, setMap))
+      node.children.forEach(child => fetchNode(child, setTree, setElementMap))
     })
