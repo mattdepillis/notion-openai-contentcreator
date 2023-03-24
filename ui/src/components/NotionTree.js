@@ -11,25 +11,12 @@ import { fetchNode } from '../api/notion/notion'
 const NotionTree = ({ root, setElementMap }) => {
   // state variables for notion tree
   const [notionTree, setNotionTree] = useState({})
-  // 
-  const [blockMap, setBlockMap] = useState({})
 
   useEffect(() => {
     const currentTree = sessionStorage.getItem('tree')
-    if (currentTree === null) fetchNode(root, setNotionTree, {}, setBlockMap)
+    if (currentTree === null) fetchNode(root, setNotionTree, setElementMap)
     else setNotionTree(JSON.parse(currentTree))
-  }, [root])
-
-  useEffect(() => {
-    // console.log('notion Tree: ', notionTree)
-    sessionStorage.setItem('tree', JSON.stringify(notionTree))
-  }, [notionTree])
-
-  useEffect(() => {
-    // console.log('notion : ', blockMap)
-    sessionStorage.setItem('elementMap', JSON.stringify(blockMap))
-    setElementMap(blockMap)
-  }, [blockMap, setElementMap])
+  }, [root, setElementMap])
 
   return (
     <div>
@@ -37,7 +24,6 @@ const NotionTree = ({ root, setElementMap }) => {
         <TreeNode tree={notionTree} node={notionTree[root.id]} />
       }
     </div>
-    
   )
 }
 
