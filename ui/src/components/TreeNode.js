@@ -1,6 +1,10 @@
 import React, { Fragment, useState } from "react"
 
-
+/**
+ * 
+ * @param {*} param0 
+ * @returns 
+ */
 const TreeNode = ({ tree, node }) => {
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -13,7 +17,7 @@ const TreeNode = ({ tree, node }) => {
     <Fragment>
       <div onClick={() => handleExpansion(isExpanded)}>
         {node.title && (<span>{node.title}</span>)}
-        {node.children && (
+        {node.children.length > 0 && (
           <button>{isExpanded ? '-' : '+'}</button>
         )}
       </div>
