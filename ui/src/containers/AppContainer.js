@@ -7,18 +7,23 @@ import { Name, WelcomeContainer } from '../styles/AppContainerStyles'
 
 import SearchBar from '../components/SearchBar'
 
+import ActionsGrid from '../components/ActionsGrid'
+
 import TreeContainer from './TreeContainer'
 
 const AppContainer = () => {
+  // state mapping for application user
   const [user, setUser] = useState(null)
-
   // state mapping for element map (formatted block name -> block id)
   const [elementMap, setElementMap] = useState({})
+  // state mapping for search term values
+  const [searchTerm, setSearchTerm] = useState("")
+  
 
   useEffect(() => {
     // set the elementMap with init value -- useful if in same session
     const currentMap = sessionStorage.getItem('elementMap') || {}
-    setElementMap(currentMap)
+    setElementMap(JSON.parse(currentMap))
 
     const setData = async () => {
       const data = await fetchUsers()
@@ -27,13 +32,6 @@ const AppContainer = () => {
     setData()
   }, [])
 
-  useEffect(() => {
-    console.log('elementMap', elementMap)
-  }, [elementMap])
-
-  useEffect(() => {
-    console.log('user', user)
-  }, [user])
   return (
     <Container maxW='90%'>
       {user &&
@@ -44,7 +42,8 @@ const AppContainer = () => {
           <Name>Welcome, <strong>{user.name}</strong></Name>
         </WelcomeContainer>
       }
-      <SearchBar />
+      <SearchBar setSearchTerm={setSearchTerm} />
+      <ActionsGrid elementMap={elementMap} searchTerm={searchTerm} />
       <TreeContainer setElementMap={setElementMap} />
     </Container>
   )
