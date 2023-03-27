@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Card, CardHeader, SimpleGrid } from '@chakra-ui/react'
 
-import TreeNode from './TreeNode'
-import { fetchNode } from '../api/notion/notion'
-
 /**
  * 
  * @param {*} param0 
@@ -21,17 +18,31 @@ const ActionsGrid = ({ elementMap, searchTerm }) => {
 
   // limit 6 in grid at a time, for example
   useEffect(() => {
-    // if the search term === "", pick 4-6 random actions
-    console.log('o', Object.keys(elementMap))
+    // TODO: 4-6 standard options (READ, ALTER page/db, GENERATE NEW, etc)
     setOptions(Object.entries(elementMap).slice(0, 5))
-    console.log(options)
   }, [elementMap])
+
+  useEffect(() => {
+    if (searchTerm.length > 0) {
+      /*
+        TODO: set up a fuzzy search algorithm to handle this more broadly
+        TODO: can try Levenshtein distance algo for this purpose
+      */
+      const st = searchTerm.toLowerCase()
+      // TODO: support to ignore <icon>space if there's a page icon
+      // ! might want to refactor the returned title to be just the text
+      // ?: have an icon key
+      // * then, on display, render icon before the title
+      const partialMatches = Object.entries(elementMap).filter(arr => arr[0].toLowerCase().startsWith(st))
+      setOptions(partialMatches)
+    } else setOptions(Object.entries(elementMap).slice(0, 5))
+  }, [elementMap, searchTerm])
 
   return (
     <SimpleGrid>
       {options.length > 0 &&
         options.map(option =>
-          <Card>
+          <Card key={option[1]}>
             <CardHeader>{option[0]}</CardHeader>
           </Card>
         )
