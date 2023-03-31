@@ -9,6 +9,7 @@ import SearchBar from '../components/SearchBar'
 
 import ActionsGrid from '../components/ActionsGrid'
 
+import OpenAIContainer from './OpenAIContainer'
 import TreeContainer from './TreeContainer'
 
 const AppContainer = () => {
@@ -45,6 +46,7 @@ const AppContainer = () => {
       <SearchBar setSearchTerm={setSearchTerm} />
       <ActionsGrid elementMap={elementMap} searchTerm={searchTerm} />
       <TreeContainer setElementMap={setElementMap} />
+      <OpenAIContainer />
     </Container>
   )
 }
