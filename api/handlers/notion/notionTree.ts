@@ -26,7 +26,7 @@ const formatNodeTitle = async (node: Node): Promise<string> => {
   : node.title[0].plain_text
 
   if (node.object === "page" && !(/[a-zA-Z0-9]/.test(title))) {
-    console.log("retrieving child_page name from BlockObjectResponse for page id", node.id)
+    // console.log("retrieving child_page name from BlockObjectResponse for page id", node.id)
     title += `${await getChildPageNameFromBlock(node.id)}`
   }
 
