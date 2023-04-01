@@ -13,6 +13,7 @@ export const formatOpenAiApiRequest = (method, prompt, maxTokens) => ({
   },
   body: JSON.stringify({
     prompt,
+    model: 'text-davinci-003',
     max_tokens: maxTokens || 50
   })
 })
