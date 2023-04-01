@@ -6,5 +6,5 @@ import { formatOpenAiApiRequest } from "../../utils/apiFormatters"
  * @returns 
  */
 export const promptDaVinci = async (inputText) =>
-  fetch(process.env.REACT_APP_DAVINCI_URL, formatOpenAiApiRequest('POST', inputText))
+  fetch('https://api.openai.com/v1/completions', formatOpenAiApiRequest('POST', inputText))
     .then(response => response.json())
