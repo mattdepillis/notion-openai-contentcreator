@@ -23,7 +23,7 @@ const AppContainer = () => {
 
   useEffect(() => {
     // set the elementMap with init value -- useful if in same session
-    const currentMap = sessionStorage.getItem('elementMap') || {}
+    const currentMap = sessionStorage.getItem('elementMap') || "{}"
     setElementMap(JSON.parse(currentMap))
 
     const setData = async () => {
