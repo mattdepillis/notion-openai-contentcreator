@@ -11,9 +11,9 @@ import { BlockObjectResponse, PageObjectResponse } from '@notionhq/client/build/
 /**
  * 
  */
-const formatNodeTitle = async (node: Node): Promise<string> => {
+const getNodeIconAndTitle = async (node: Node): Promise<any> => {
   const icon = (node.icon as IconProperty)
-  const emoji = icon && (icon.emoji + " ") || ''
+  const emoji = icon && icon.emoji || ''
 
   let title = node.object === "page" ?
     (node.properties.title || node.properties["Title"] || node.properties["Name"]) ?
@@ -30,7 +30,7 @@ const formatNodeTitle = async (node: Node): Promise<string> => {
     title += `${await getChildPageNameFromBlock(node.id)}`
   }
 
-  return `${emoji}${title}`
+  return { emoji, title }
 }
 
 /**
@@ -123,7 +123,7 @@ const getChildPageNameFromBlock = async (id: string): Promise<string> => {
 
 export const buildTreeNode = async (id: string, type: string): Promise<TreeNode|void> => {
   let node: TreeNode = {
-    id, type, title: "", children: []
+    id, type, title: "", emoji: "", children: []
   }
   if (node.type === "external_object_instance_page") {
     console.log(`block ${id} is an external_object_instance_page`)
@@ -139,8 +139,9 @@ export const buildTreeNode = async (id: string, type: string): Promise<TreeNode|
       return
     }
     
-    node.title = await formatNodeTitle(asBlock)
-  } else node.title = "Workspace"
+    const { emoji, title } = await getNodeIconAndTitle(asBlock)
+    node.title = title, node.emoji = emoji
+  } else node.title = "Workspace", node.emoji = ""
 
   node.children = await getNodeChildren(node)
 
