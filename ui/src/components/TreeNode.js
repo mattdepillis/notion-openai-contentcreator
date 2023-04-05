@@ -12,11 +12,13 @@ const TreeNode = ({ tree, node }) => {
     setIsExpanded(!isExpanded)
   }
 
+  const formatEmoji = (emoji) => emoji.length > 0 ? emoji + " " : emoji
+
   // TODO: figure out a better way to render the tree for my inspection atm
   return (
     <Fragment>
       <div onClick={() => handleExpansion(isExpanded)}>
-        {node.title && (<span>{node.title}</span>)}
+        {node.title && (<span>{formatEmoji(node.emoji)}{node.title}</span>)}
         {node.children.length > 0 && (
           <button>{isExpanded ? '-' : '+'}</button>
         )}
