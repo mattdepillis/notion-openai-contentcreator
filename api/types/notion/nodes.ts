@@ -7,5 +7,6 @@ export interface TreeNode {
   id: string
   type: string
   title: string
+  emoji: string
   children?: NodeChild[]
 }
