@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Card, CardHeader, SimpleGrid } from '@chakra-ui/react'
 
+import { filterKeysByLevenshteinDistance } from '../utils/search'
+
 /**
  * 
  * @param {*} param0 
@@ -24,16 +26,8 @@ const ActionsGrid = ({ elementMap, searchTerm }) => {
 
   useEffect(() => {
     if (searchTerm.length > 0) {
-      /*
-        TODO: set up a fuzzy search algorithm to handle this more broadly
-        TODO: can try Levenshtein distance algo for this purpose
-      */
       const st = searchTerm.toLowerCase()
-      // TODO: support to ignore <icon>space if there's a page icon
-      // ! might want to refactor the returned title to be just the text
-      // ?: have an icon key
-      // * then, on display, render icon before the title
-      const partialMatches = Object.entries(elementMap).filter(arr => arr[0].toLowerCase().startsWith(st))
+      const partialMatches = filterKeysByLevenshteinDistance(elementMap, st, 2)
       setOptions(partialMatches)
     } else setOptions(Object.entries(elementMap).slice(0, 5))
   }, [elementMap, searchTerm])
