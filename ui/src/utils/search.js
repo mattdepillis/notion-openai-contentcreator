@@ -26,15 +26,23 @@ const levenshteinDistance = (a, b, prefixLength = Math.min(a.length, b.length)) 
  */
 export const filterKeysByLevenshteinDistance = (obj, term, maxDistance) => {
   const prefixLength = term.length
+  const prefix = term.slice(0, prefixLength)
 
-  return Object.keys(obj).filter(key => {
-    if (key.length < prefixLength) return false
-  
-    const distance = levenshteinDistance(
-      key.slice(0, prefixLength),
-      term.slice(0, prefixLength), prefixLength
-    )
-    
-    return distance <= maxDistance
-  })
+  const cache = {}
+  return Object.keys(obj)
+    .filter(key => {
+      if (key.length < prefixLength) return false
+
+      if (cache[key] && cache[key][prefix]) {
+        return cache[key][prefix] <= maxDistance
+      }
+      const distance = levenshteinDistance(key.slice(0, prefixLength), prefix, prefixLength)
+      if (!cache[key]) {
+        cache[key] = {}
+      }
+      cache[key][prefix] = distance
+      return distance <= maxDistance
+    })
+    .map(key => ([ key, cache[key][term.slice(0, prefixLength)] ]))
+    .sort((a, b) => a[1] - b[1])
 }
