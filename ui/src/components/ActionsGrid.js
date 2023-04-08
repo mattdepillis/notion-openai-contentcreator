@@ -49,7 +49,7 @@ const ActionsGrid = ({ elementMap, searchTerm }) => {
       }
       {(options.length === 0 && searchTerm.length > 0) &&
         <Card key='no-results-found'>
-          <CardHeader>{<WarningIcon />}  {"Your search term doesn't match any results"}</CardHeader>
+          <CardHeader>{<WarningIcon />} {"Your search term doesn't match any results"}</CardHeader>
         </Card>
       }
     </SimpleGrid>

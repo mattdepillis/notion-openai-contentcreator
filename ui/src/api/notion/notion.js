@@ -1,7 +1,5 @@
 import { setMap } from "../../utils/notionApiHelpers"
 
-
-
 /**
  * 
  * @returns 
