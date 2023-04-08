@@ -5,7 +5,7 @@ export const extendedGlobalTheme = extendTheme({
     global: {
       'html, body': {
         fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif'
-      },
+      }
     },
   },
 })
