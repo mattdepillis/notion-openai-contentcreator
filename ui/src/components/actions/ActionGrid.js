@@ -11,11 +11,17 @@ import { gridActions } from './gridActions'
  */
 const ActionGrid = () => {
   return (
-    <SimpleGrid columns={4} spacing={5}>
-      {gridActions.map(action => (
-        <ActionCard action={action} />
-      ))}
-    </SimpleGrid>
+    <GridContainer>
+      <StyledHeading>Suggested Actions</StyledHeading>
+      <SimpleGrid className={`grid grid-${columns}`} spacing={5}>
+        {gridActions.slice(0, numRowsToShow * columns).map(action => (
+          <ActionCard action={action} key={action.id} />
+        ))}
+      </SimpleGrid>
+      <button onClick={changeRowsShown}>{
+        numRowsToShow === 1 ? ("Show More") : ("Hide")
+      }</button>
+    </GridContainer>
   )
 }
 
