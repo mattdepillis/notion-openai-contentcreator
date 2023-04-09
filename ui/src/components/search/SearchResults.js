@@ -13,8 +13,8 @@ const SearchResults = ({ elementMap, searchTerm }) => {
   // need state variables
   const [options, setOptions] = useState([])
 
+  // TODO: delete this?
   useEffect(() => {
-    // TODO: 4-6 standard options (READ, ALTER page/db, GENERATE NEW, etc)
     setOptions(Object.entries(elementMap).slice(0, 5))
   }, [elementMap])
 
