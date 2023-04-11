@@ -1,32 +1,14 @@
-import { SimpleGrid } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
+import { Button, SimpleGrid } from '@chakra-ui/react'
+import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 
 import ActionCard from './ActionCard'
 
 import { gridActions } from './gridActions'
 
+import { ButtonWrapper, GridContainer } from './styles'
 import { StyledHeading } from '../../styles/chakraComponentStyles'
 
-import styled from 'styled-components'
-
-
-const GridContainer = styled.div`
-  .grid {
-    display: grid;
-  }
-  .grid-1 {
-    grid-template-columns: repeat(1, 1fr);
-  }
-  .grid-2 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .grid-3 {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  .grid-4 {
-    grid-template-columns: repeat(4, 1fr);
-  }
-`
 
 /**
  * 
@@ -54,13 +36,10 @@ const ActionGrid = () => {
 
   const columns = getColumns()
 
-  const changeRowsShown = () => {
-    const num = numRowsToShow === 1
-      ? gridActions.length / columns
-      : 1
-    console.log(num, columns)
-    setNumRowsToShow(num)
-  }
+  const changeRowsShown = () =>
+    setNumRowsToShow(
+      numRowsToShow === 1 ? (gridActions.length / columns) : 1
+    )
 
   return (
     <GridContainer>
@@ -70,9 +49,15 @@ const ActionGrid = () => {
           <ActionCard action={action} key={action.id} />
         ))}
       </SimpleGrid>
-      <button onClick={changeRowsShown}>{
-        numRowsToShow === 1 ? ("Show More") : ("Hide")
-      }</button>
+      <ButtonWrapper>
+        <Button
+          colorScheme={numRowsToShow === 1 ? 'teal' : 'red'}
+          leftIcon={numRowsToShow === 1 ? <ArrowDownIcon /> : <ArrowUpIcon />}
+          onClick={changeRowsShown}
+        >
+          {numRowsToShow === 1 ? "More" : "Less"}
+        </Button>
+      </ButtonWrapper>
     </GridContainer>
   )
 }
