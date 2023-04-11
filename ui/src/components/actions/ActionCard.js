@@ -14,7 +14,13 @@ const ActionCard = ({ action }) =>
       <Text>{action.description}</Text>
     </CardBody>
     <CardFooter style={{ border: '1px solid blue' }}>
-      <Button colorScheme='facebook' style={{ width: 'fit-content', margin: 'auto' }}>{action.buttonText}</Button>
+      <Button
+        colorScheme='facebook'
+        leftIcon={action.icon}
+        style={{ width: 'fit-content', margin: 'auto' }}
+      >
+        {action.buttonText}
+      </Button>
     </CardFooter>
   </Card>
 
